@@ -11,6 +11,8 @@ var p1 = {}, p2 = {};
 var zrate = 1;//上次缩放倍率
 var dis = 10;//微移的距离
 var moveSign = true;
+var hasFrameless = true;
+
 $("#avatar_file").on("change", function () {
     var avatar_file = document.getElementById("avatar_file");
     var file = avatar_file.files[0];
@@ -32,6 +34,7 @@ $("#avatar_file").on("change", function () {
             avatar_canvas.width = size;
             avatar_canvas.height = size;
             avatar_ctx.translate(size / 2, size / 2);
+            avatar_ctx.save();
             $("#avatar_canvas").show();
             reset();
             $("#base_tools").show();
@@ -46,6 +49,13 @@ function draw() {
     var h = img.height;
     w >= h ? avatar_ctx.drawImage(img, mx - size * w / h / 2, -size / 2 + my, size * w / h, size) : avatar_ctx.drawImage(img, -size / 2 + mx, my - size * h / w / 2, size, size * h / w);
     //console.log("draw");
+    if (hasFrameless) {
+        avatar_ctx.save();
+        avatar_ctx.setTransform(1, 0, 0, 1, 0, 0);
+        var frameless = document.getElementById('frameless');
+        avatar_ctx.drawImage(frameless, 0, 0, size, size);
+        avatar_ctx.restore();
+    }
 }
 /*清空画布*/
 function clr() {
@@ -190,13 +200,14 @@ function addEvent() {
     }).hover(function () {
         $(this).tooltip("toggle");
     });
+    $("#avatar_frameless").on("click", function () {
+        hasFrameless = !hasFrameless;
+        draw();
+    });
     $("#avatar_save").on("click", function () {
         var dataurl = avatar_canvas.toDataURL('image/png');
-        console.log(dataurl);
-            var target = document.getElementById('target');
-            target.innerHTML = "<img src='" + dataurl + "' style='width: 100%;left: 0;top:0;' alt='avatar'/>";
-        // var w=window.open('about:blank','image from canvas');
-        // document.write("<img src='"+dataurl+"' style='width: 100%;left: 0;top:0;' alt='avatar'/>");
+        var target = document.getElementById('target');
+        target.innerHTML = "<img src='" + dataurl + "' style='width: 100%;left: 0;top:0;' alt='avatar'/>";
     })
 }
 
